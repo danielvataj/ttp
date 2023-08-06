@@ -1,38 +1,35 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const { Pool } = require('pg');
-const cors = require('cors'); // Import the cors middleware
+const cors = require('cors');
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Create a PostgreSQL pool
 const pool = new Pool({
-  user: 'wfahmwhm',
-  host: 'bubble.db.elephantsql.com',
-  database: 'wfahmwhm',
-  password: 'Mr73vlDpngbtfF9FJwdyPQvGPdzHhv8k',
+  user: 'toppfesp',
+  host: 'peanut.db.elephantsql.com',
+  database: 'toppfesp',
+  password: 'xfWH1RVjIBjcqEkBuO-X6-r-tutIaxDS',
   port: 5432,
 });
 
-// Middleware
-app.use(cors()); // Use CORS middleware
+app.use(cors());
 app.use(bodyParser.json());
 
-// Route to handle POST requests to /submit     
 app.post('/submit', async (req, res) => {
   try {
-    const { userID, email } = req.body;
+    const { userID, email, twclid } = req.body;
+    const domain = req.get('origin');
+    const submission = new Date();
 
-    // Validate the user email and ID
     let re = /\S+@\S+\.\S+/;
     if (!userID || !email || !re.test(email) || userID.length < 32) {
       return res.status(403).json({ error: 'Invalid userID or email' });
     }
 
-    // Insert the email to the database
-    const query = 'INSERT INTO email_list (userID, email) VALUES ($1, $2)';
-    const values = [userID, email];
+    const query = 'INSERT INTO email_list (userID, email, twclid, domain, submission) VALUES ($1, $2, $3, $4, $5)';
+    const values = [userID, email, twclid, domain, submission];
 
     await pool.query(query, values);
 
@@ -43,7 +40,6 @@ app.post('/submit', async (req, res) => {
   }
 });
 
-// Start the Express server
 app.listen(port, () => {
   console.log(`Server is listening on port ${port}`);
 });
